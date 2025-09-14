@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Romantic Heartbeat Website</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Pacifico&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: linear-gradient(135deg, #ffccd5, #d4a5f7);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Arial', sans-serif;
+      transition: background 1s ease;
+    }
+    body.birthday-mode {
+      background: url('background.jpg') no-repeat center center fixed;
+      background-size: cover;
+    }
+    body.gallery-mode {
+      background: url('background2.jpg') no-repeat center center fixed;
+      background-size: 100% 100%;
+      perspective: 1200px; /* Deeper 3D effect */
+    }
+    .container {
+      text-align: center;
+      color: #fff;
+      text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      z-index: 10;
+    }
+    .container.hidden {
+      display: none;
+    }
+    .container p {
+      font-size: 24px; /* Larger text */
+      font-weight: bold; /* Bolder text */
+      margin: 10px 0;
+    }
+    .symbol {
+      position: absolute;
+      pointer-events: none;
+    }
+    .symbol img {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.4)) brightness(1.2);
+    }
+    .heart img {
+      filter: hue-rotate(0deg) saturate(150%) drop-shadow(0 0 5px rgba(0, 0, 0, 0.3));
+    }
+    .need-more-love {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s;
+    }
+    .need-more-love:hover {
+      transform: scale(1.1);
+    }
+    .previous-love {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 8px 16px;
+      font-size: 16px;
+      color: #fff;
+      background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      z-index: 30;
+      display: none;
+    }
+    .previous-love:hover {
+      transform: scale(1.1);
+    }
+    .new-love {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      padding: 8px 16px;
+      font-size: 16px;
+      color: #fff;
+      background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      z-index: 30;
+      display: none;
+    }
+    .new-love:hover {
+      transform: scale(1.1);
+    }
+    .birthday-container {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(0%, 60%);
+      text-align: center;
+      z-index: 20;
+    }
+    .birthday-text {
+      font-size: 60px;
+      font-family: 'Pacifico', cursive;
+      color: #ffeb3b;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      margin-bottom: 20px;
+      right: 125%;
+    }
+    .confetti {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: #ffeb3b;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .gallery-container {
+      display: none;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      z-index: 20;
+      transform-style: preserve-3d;
+    }
+    .gallery-image {
+      position: absolute;
+      width: 300px; /* Fixed width */
+      height: auto; /* Preserve aspect ratio */
+      border-radius: 15px; /* Softer corners */
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.4); /* Enhanced shadow */
+      pointer-events: auto;
+      transform-origin: center center;
+      backface-visibility: hidden;
+      cursor: pointer;
+      transition: transform 0.5s ease; /* Smooth transitions */
+      filter: brightness(1.1); /* Slight brightness */
+    }
+    .gallery-image:hover {
+      filter: brightness(1.3) drop-shadow(0 0 10px rgba(255, 255, 255, 0.5)); /* Glow effect */
+      transform: translateZ(50px); /* Pop out on hover */
+    }
+    .gallery-disclaimer {
+      position: absolute;
+      top: 20px; /* Top-right position */
+      right: 20px;
+      color: #fff;
+      font-size: 16px;
+      font-family: 'Pacifico', cursive;
+      text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      z-index: 30;
+      display: none;
+    }
+    .gallery-mode .gallery-disclaimer {
+      display: block;
+    }
+    .center-line {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 100vh;
+      background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.3), transparent);
+      pointer-events: none;
+      z-index: 25;
+      display: none;
+    }
+    .gallery-mode .center-line {
+      display: block;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Heartbeats of Love</h1>
+    <p>Hover near hearts to feel the beat!</p>
+    <button class="need-more-love">Need More Love</button>
+  </div>
+  <button class="previous-love">Previous Love</button>
+  <button class="new-love">New Love</button>
+  <div class="birthday-container">
+    <div class="birthday-text">Happy Birthday ra Pottoda</div>
+  </div>
+  <div class="gallery-container">
+    <div class="gallery-disclaimer">Click or drag to move photos</div>
+    <div class="center-line"></div>
+  </div>
+
+  <script>
+    // Function to create a heart symbol
+    function createHeart() {
+      const el = document.createElement('div');
+      el.classList.add('symbol', 'heart');
+      const img = document.createElement('img');
+      img.src = 'https://img.icons8.com/color/48/000000/hearts.png';
+      const size = 80 + Math.random() * 120;
+      el.style.width = size + 'px';
+      el.style.height = size + 'px';
+      el.style.left = Math.random() * window.innerWidth + 'px';
+      el.style.top = window.innerHeight + 'px';
+      el.appendChild(img);
+      document.body.appendChild(el);
+      return el;
+    }
+
+    // Animation for hearts
+    function animateSymbol() {
+      const symbol = createHeart();
+      const animation = anime({
+        targets: symbol,
+        translateY: -window.innerHeight - 50,
+        translateX: anime.random(-150, 150),
+        rotate: anime.random(-30, 30),
+        opacity: [0.5, 1],
+        duration: 4000 + Math.random() * 3000,
+        easing: 'easeOutSine',
+        complete: () => {
+          symbol.remove();
+          if (!document.body.classList.contains('birthday-mode') && !document.body.classList.contains('gallery-mode')) {
+            animateSymbol();
+          }
+        }
+      });
+      symbol.animation = animation;
+      return symbol;
+    }
+
+    // Start heart animations (12 hearts)
+    function startHearts() {
+      for (let i = 0; i < 12; i++) {
+        setTimeout(() => {
+          if (!document.body.classList.contains('birthday-mode') && !document.body.classList.contains('gallery-mode')) {
+            animateSymbol();
+          }
+        }, i * 500);
+      }
+    }
+    startHearts();
+
+    // Mouse interaction: Continuous heartbeat effect on hover (for hearts only)
+    const heartAnimations = new Map();
+    document.addEventListener('mousemove', (e) => {
+      if (document.body.classList.contains('birthday-mode') || document.body.classList.contains('gallery-mode')) return;
+      const symbols = document.querySelectorAll('.symbol.heart');
+      symbols.forEach(symbol => {
+        const rect = symbol.getBoundingClientRect();
+        const dx = e.clientX - (rect.left + rect.width / 2);
+        const dy = e.clientY - (rect.top + rect.height / 2);
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < 100) {
+          if (symbol.animation) {
+            symbol.animation.pause();
+          }
+          if (!heartAnimations.has(symbol)) {
+            const heartbeat = anime({
+              targets: symbol,
+              scale: [
+                { value: 1.2, duration: 200 },
+                { value: 0.8, duration: 200 },
+                { value: 1, duration: 200 }
+              ],
+              easing: 'easeInOutQuad',
+              loop: true
+            });
+            heartAnimations.set(symbol, heartbeat);
+          }
+        } else {
+          if (symbol.animation) {
+            symbol.animation.play();
+          }
+          if (heartAnimations.has(symbol)) {
+            const heartbeat = heartAnimations.get(symbol);
+            heartbeat.pause();
+            heartAnimations.delete(symbol);
+            anime({
+              targets: symbol,
+              scale: 1,
+              duration: 100,
+              easing: 'easeInOutQuad'
+            });
+          }
+        }
+      });
+    });
+
+    // Clean up heartbeat animations when hearts are removed
+    document.addEventListener('animationend', (e) => {
+      if (e.target.classList.contains('heart')) {
+        if (heartAnimations.has(e.target)) {
+          const heartbeat = heartAnimations.get(e.target);
+          heartbeat.pause();
+          heartAnimations.delete(e.target);
+        }
+      }
+    });
+
+    // Birthday animation on button click
+    const needMoreLoveButton = document.querySelector('.need-more-love');
+    const previousLoveButton = document.querySelector('.previous-love');
+    const newLoveButton = document.querySelector('.new-love');
+    const birthdayContainer = document.querySelector('.birthday-container');
+    const birthdayText = document.querySelector('.birthday-text');
+    const galleryContainer = document.querySelector('.gallery-container');
+
+    // Static image list (9 images in main folder)
+    const images = [
+      '1.jpg',
+      '2.jpg',
+      '3.jpg',
+      '4.jpg',
+      '5.jpg',
+      '6.jpg',
+      '7.jpg',
+      '8.jpg',
+      '9.jpg'
+    ];
+
+    needMoreLoveButton.addEventListener('click', () => {
+      document.body.classList.add('birthday-mode');
+      document.querySelector('.container').style.display = 'none';
+      previousLoveButton.style.display = 'block';
+      newLoveButton.style.display = 'block';
+      birthdayContainer.style.display = 'block';
+
+      document.querySelectorAll('.symbol').forEach(symbol => {
+        if (heartAnimations.has(symbol)) {
+          heartAnimations.get(symbol).pause();
+          heartAnimations.delete(symbol);
+        }
+        symbol.remove();
+      });
+
+      for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        const colors = ['#ffeb3b', '#ff3b3b', '#ff8e53', '#4caf50', '#2196f3'];
+        confetti.classList.add('confetti');
+        confetti.style.background = colors[Math.floor(Math.random() * 5)];
+        confetti.style.left = Math.random() * window.innerWidth + 'px';
+        confetti.style.top = Math.random() * window.innerHeight + 'px';
+        document.body.appendChild(confetti);
+        anime({
+          targets: confetti,
+          translateY: window.innerHeight + 50,
+          translateX: () => anime.random(-100, 100),
+          rotate: () => anime.random(-180, 180),
+          opacity: [1, 0],
+          duration: 5000, // Fixed 5 seconds
+          easing: 'easeOutQuad',
+          complete: () => confetti.remove()
+        });
+      }
+
+      anime({
+        targets: birthdayText,
+        scale: [0, 1],
+        opacity: [0, 1],
+        duration: 1000,
+        easing: 'easeOutElastic(1, 0.6)'
+      });
+    });
+
+    previousLoveButton.addEventListener('click', () => {
+      document.body.classList.remove('birthday-mode');
+      document.body.classList.remove('gallery-mode');
+      document.querySelector('.container').style.display = 'block';
+      previousLoveButton.style.display = 'none';
+      newLoveButton.style.display = 'none';
+      birthdayContainer.style.display = 'none';
+      galleryContainer.style.display = 'none';
+
+      document.querySelectorAll('.symbol').forEach(symbol => symbol.remove());
+      document.querySelectorAll('.gallery-image').forEach(img => img.remove());
+      document.querySelectorAll('.center-line').forEach(line => line.remove());
+      startHearts();
+    });
+
+    newLoveButton.addEventListener('click', () => {
+      document.body.classList.remove('birthday-mode');
+      document.body.classList.add('gallery-mode');
+      birthdayContainer.style.display = 'none';
+      newLoveButton.style.display = 'none';
+      galleryContainer.style.display = 'block';
+      previousLoveButton.style.display = 'block';
+
+      document.querySelectorAll('.symbol').forEach(symbol => symbol.remove());
+      document.querySelectorAll('.confetti').forEach(confetti => confetti.remove());
+
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const imageWidth = 300; // Fixed width
+      const spacing = 450; // Spacing between images
+      let offsetX = 0;
+      let loadedCount = 0;
+      const minOffset = centerX - (imageWidth / 2) - ((images.length - 1) * spacing); // Last image centered
+      const maxOffset = centerX - (imageWidth / 2); // First image centered
+
+      // Create images
+      images.forEach((src, index) => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.classList.add('gallery-image');
+        img.dataset.index = index;
+        galleryContainer.appendChild(img);
+
+        // Update position after load
+        img.onload = () => {
+          updateImagePosition(img, index, offsetX, centerX, centerY, imageWidth, spacing);
+          loadedCount++;
+          if (loadedCount === images.length) {
+            // Initial animation after all loaded
+            anime({
+              targets: '.gallery-image',
+              opacity: [0, 1],
+              translateZ: 0,
+              duration: 1000,
+              easing: 'easeOutElastic(1, 0.6)',
+              delay: anime.stagger(100)
+            });
+          }
+        };
+
+        // Click to center
+        img.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const targetOffset = centerX - (imageWidth / 2) - (index * spacing);
+          anime({
+            targets: { offset: offsetX },
+            offset: targetOffset,
+            duration: 1000,
+            easing: 'easeOutCubic',
+            update: (anim) => {
+              offsetX = Math.max(minOffset, Math.min(maxOffset, anim.animatables[0].target.offset));
+              updateGallery(centerX, centerY, imageWidth, spacing);
+            }
+          });
+        });
+      });
+
+      // Click anywhere to shift directionally
+      galleryContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('gallery-image') || e.target.classList.contains('gallery-disclaimer')) return;
+        const shift = (e.clientX > centerX) ? spacing : -spacing;
+        const targetOffset = offsetX + shift;
+        if (targetOffset >= minOffset && targetOffset <= maxOffset) {
+          anime({
+            targets: { offset: offsetX },
+            offset: targetOffset,
+            duration: 800,
+            easing: 'easeOutCubic',
+            update: (anim) => {
+              offsetX = anim.animatables[0].target.offset;
+              updateGallery(centerX, centerY, imageWidth, spacing);
+            }
+          });
+        }
+      });
+
+      // Mouse and touch interaction
+      let isDragging = false;
+      let previousX = 0;
+
+      galleryContainer.addEventListener('mousedown', handleStart);
+      galleryContainer.addEventListener('touchstart', handleStart, { passive: false });
+      document.addEventListener('mousemove', handleMove);
+      document.addEventListener('touchmove', handleMove, { passive: false });
+      document.addEventListener('mouseup', handleEnd);
+      document.addEventListener('touchend', handleEnd);
+
+      function handleStart(e) {
+        if (e.target.classList.contains('gallery-image')) return;
+        isDragging = true;
+        previousX = e.clientX || e.touches[0].clientX;
+        e.preventDefault();
+      }
+
+      function handleMove(e) {
+        if (isDragging) {
+          const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+          if (clientX) {
+            const deltaX = clientX - previousX;
+            const newOffset = offsetX + (deltaX * 0.3); // Reduced sensitivity
+            offsetX = Math.max(minOffset, Math.min(maxOffset, newOffset));
+            updateGallery(centerX, centerY, imageWidth, spacing);
+            previousX = clientX;
+          }
+          e.preventDefault();
+        }
+      }
+
+      function handleEnd() {
+        if (isDragging) {
+          isDragging = false;
+          anime({
+            targets: { offset: offsetX },
+            offset: offsetX,
+            duration: 300,
+            easing: 'easeOutQuad',
+            update: (anim) => {
+              offsetX = Math.max(minOffset, Math.min(maxOffset, anim.animatables[0].target.offset));
+              updateGallery(centerX, centerY, imageWidth, spacing);
+            }
+          });
+        }
+      }
+
+      // Update image position with 3D tilt effect
+      function updateImagePosition(img, index, offset, centerX, centerY, imageWidth, spacing) {
+        const baseX = (index * spacing) + offset;
+        const relativeX = baseX - centerX + (imageWidth / 2); // Adjust for center
+        const z = -Math.abs(relativeX) / 2; // Depth effect
+        const rotateY = - (relativeX / window.innerWidth) * 60; // Tilt based on position
+        const y = centerY - (img.height / 2); // Center vertically
+
+        img.style.left = `${baseX}px`;
+        img.style.top = `${y}px`;
+        img.style.transform = `translateZ(${z}px) rotateY(${rotateY}deg)`;
+        img.style.opacity = 1; // Fixed opacity
+      }
+
+      function updateGallery(centerX, centerY, imageWidth, spacing) {
+        const galleryImages = document.querySelectorAll('.gallery-image');
+        galleryImages.forEach((img, index) => {
+          updateImagePosition(img, index, offsetX, centerX, centerY, imageWidth, spacing);
+        });
+      }
+
+      // Animate the disclaimer text
+      anime({
+        targets: '.gallery-disclaimer',
+        opacity: [0, 1],
+        translateY: [20, 0],
+        duration: 1000,
+        easing: 'easeOutElastic(1, 0.6)'
+      });
+
+      // Animate the center line
+      anime({
+        targets: '.center-line',
+        opacity: [0, 0.3],
+        duration: 1000,
+        easing: 'easeOutQuad'
+      });
+    });
+  </script>
+</body>
+</html>
